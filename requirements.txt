@@ -7,3 +7,5 @@ numpy
 pandas
 requests
 python-multipart
+numpy==1.26.4
+joblib==1.4.2
