@@ -5,4 +5,5 @@ joblib
 pydantic
 numpy
 pandas
-gdown
+requests
+python-multipart
