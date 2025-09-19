@@ -17,8 +17,8 @@ def download_from_drive(file_id, filename):
             f.write(r.content)
 
 # downloading the models from google drive
-download_from_drive('1APKrwPyT0jGhR5Gq6BVLGDFbzHa4GUle', 'rf_price_prediction.pkl')
-download_from_drive('1r2I_MSlKzDD5MP1LYgHxoAtHU35fobjF', 'ROI_predictor.pkl')
+download_from_drive('1CTcYkPyctTI9nNDoBs6hXwANESDy6bfq', 'rf_price_prediction.pkl')
+download_from_drive('1uPUqclkX3Od5H4vyq_xHiYmY6WYLkABw', 'ROI_predictor.pkl')
 
 # loading the models and encoders into objects
 
@@ -152,4 +152,5 @@ def market_comparison(req: staterequest):
     except Exception as e:
 
         raise HTTPException( status_code = 500, details = str(e))
+
 
