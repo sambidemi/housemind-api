@@ -3,7 +3,24 @@ from pydantic import BaseModel, Field
 import pandas as pd
 import numpy as np
 import joblib 
+import os 
+import requests
 from fastapi.middleware.cors import CORSMiddleware #needed for managing the frontends that can access the api
+
+
+def download_from_drive(file_id, filename):
+    ## download the file from Google drive if not exists locally
+    if not os.path.exists(filename):
+        url = f"https://drive.google.com/uc?export=download&id={file_id}"
+        r = requests.get(url, allow_redirects = True)
+        with open(filename, 'wb') as f:
+            f.write(r.content)
+
+# downloading the models from google drive
+download_from_drive('1APKrwPyT0jGhR5Gq6BVLGDFbzHa4GUle', 'rf_price_prediction.pkl')
+download_from_drive('1r2I_MSlKzDD5MP1LYgHxoAtHU35fobjF', 'ROI_predictor.pkl')
+
+# loading the models and encoders into objects
 
 price_model = joblib.load('random_forest_price_prediction.pkl')
 city_enc = joblib.load('city_encoder.pkl')
@@ -133,4 +150,5 @@ def market_comparison(req: staterequest):
         'market_tier_no': market_tier_distribution,
         'investment_label_no': investment_label_distribution}
     except Exception as e:
+
         raise HTTPException( status_code = 500, details = str(e))
