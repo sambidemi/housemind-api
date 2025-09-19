@@ -22,7 +22,7 @@ download_from_drive('1r2I_MSlKzDD5MP1LYgHxoAtHU35fobjF', 'ROI_predictor.pkl')
 
 # loading the models and encoders into objects
 
-price_model = joblib.load('random_forest_price_prediction.pkl')
+price_model = joblib.load('rf_price_prediction.pkl')
 city_enc = joblib.load('city_encoder.pkl')
 state_enc = joblib.load('state_encoder.pkl')
 investment_model = joblib.load('investment_label_model.pkl')
@@ -152,3 +152,4 @@ def market_comparison(req: staterequest):
     except Exception as e:
 
         raise HTTPException( status_code = 500, details = str(e))
+
