@@ -2,11 +2,13 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 import pandas as pd
 import numpy as np
-import joblib 
-import os 
+import cloudpickle, lzma
+import os
 import requests
 from fastapi.middleware.cors import CORSMiddleware #needed for managing the frontends that can access the api
 
+
+#loading the models and encoders
 
 def download_from_drive(file_id, filename):
     ## download the file from Google drive if not exists locally
@@ -17,16 +19,21 @@ def download_from_drive(file_id, filename):
             f.write(r.content)
 
 # downloading the models from google drive
-download_from_drive('1CTcYkPyctTI9nNDoBs6hXwANESDy6bfq', 'rf_price_prediction.pkl')
-download_from_drive('1uPUqclkX3Od5H4vyq_xHiYmY6WYLkABw', 'ROI_predictor.pkl')
+download_from_drive('1xLQcHtgBQy8ezgnOquqFo3cwBAArYcoX', 'rf_price_prediction.pkl.xz')
+download_from_drive('1-92ArDvhz-sjUhBTU5s7ciggv9_0gfGp', 'ROI_predictor.pkl.xz')
 
 # loading the models and encoders into objects
 
-price_model = joblib.load('rf_price_prediction.pkl')
-city_enc = joblib.load('city_encoder.pkl')
-state_enc = joblib.load('state_encoder.pkl')
-investment_model = joblib.load('investment_label_model.pkl')
-roi_model = joblib.load('ROI_predictor.pkl')
+with lzma.open('rf_price_prediction.pkl.xz', 'rb') as f:
+    price_model = cloudpickle.load(f)
+with lzma.open('city_encoder.pkl', 'rb') as f:
+    city_enc = cloudpickle.load(f)
+with lzma.open('state_encoder.pkl', 'rb') as f:
+    state_enc = cloudpickle.load(f)
+with lzma.open('investment_label_model.pkl', 'rb') as f:
+    investment_model = cloudpickle.load(f)
+with lzma.open('ROI_predictor.pkl.xz', 'rb') as f:
+    roi_model = cloudpickle.load(f)
 
 # creating an instance of fastapi
 app = FastAPI(title = 'Housemind valuation API', version="1.0.0", description = 'API for communicating with models that performs residential real estate valuation and investment insights.')
@@ -106,10 +113,12 @@ def predict_invest(features : pricehousefeatures):
         #converting the investment label into strings 
         if investment_label == 0:
             label = 'Market Priced'
+            note = '''Market priced properties generate stable, predictable returns, and they qualify more easily for conventional financing, so investors can leverage their capital effectively.'''
         else:
             label = 'Undervalued Opportunity'
+            note = '''Undervalued properties provide higher appreciation potential after improvements, and they offer better cash-on-cash returns due to their lower entry points, so investors can achieve superior returns through strategic upgrades.'''
 
-        return {'Investment_label' : label, 'ROI_score' : roi_score}
+        return {'Investment_label' : label, 'ROI_score' : roi_score, 'Note':note}
     except Exception as e:
         raise HTTPException (status_code = 500, detail = str(e))
 
@@ -130,8 +139,8 @@ def market_comparison(req: staterequest):
         #total number of houses in 20 cities of that particular state.
         total_number_of_houses = len(state_data)
 
-        #selecting 7 popular cities of that state
-        state_city = state_data['city'].value_counts().head(7).index.to_list()
+        #selecting 15 popular cities of that state
+        state_city = state_data['city'].value_counts().head(15).index.to_list()
         state_data = state_data[state_data['city'].isin(state_city)]
 
         #average house price per city
@@ -150,7 +159,4 @@ def market_comparison(req: staterequest):
         'market_tier_no': market_tier_distribution,
         'investment_label_no': investment_label_distribution}
     except Exception as e:
-
         raise HTTPException( status_code = 500, details = str(e))
-
-
