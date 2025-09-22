@@ -3,37 +3,28 @@ from pydantic import BaseModel, Field
 import pandas as pd
 import numpy as np
 import cloudpickle, lzma
-import os
-import requests
+import joblib
+import os,requests
 from fastapi.middleware.cors import CORSMiddleware #needed for managing the frontends that can access the api
 
 
-#loading the models and encoders
+#loading the models and encoders into objects
 
-def download_from_drive(file_id, filename):
-    ## download the file from Google drive if not exists locally
-    if not os.path.exists(filename):
-        url = f"https://drive.google.com/uc?export=download&id={file_id}"
-        r = requests.get(url, allow_redirects = True)
-        with open(filename, 'wb') as f:
+def download_from_drive (file_id, file_name):
+    if not os.path.exist(file_name):
+        url = f'https://drive.google.com/uc?export=download&id={file_id}'
+        r = request.get(url, allow_redirects = True)
+        with open(file_name, 'wb') as f:
             f.write(r.content)
 
-# downloading the models from google drive
-download_from_drive('1xLQcHtgBQy8ezgnOquqFo3cwBAArYcoX', 'rf_price_prediction.pkl.xz')
-download_from_drive('1-92ArDvhz-sjUhBTU5s7ciggv9_0gfGp', 'ROI_predictor.pkl.xz')
+download_from_drive('1xLQcHtgBQy8ezgnOquqFo3cwBAArYcoX','rf_price_prediction.pkl.xz')
+download_from_drive('1-92ArDvhz-sjUhBTU5s7ciggv9_0gfGp','ROI_predictor.pkl.xz')
 
-# loading the models and encoders into objects
-
-with lzma.open('rf_price_prediction.pkl.xz', 'rb') as f:
-    price_model = cloudpickle.load(f)
-with lzma.open('city_encoder.pkl', 'rb') as f:
-    city_enc = cloudpickle.load(f)
-with lzma.open('state_encoder.pkl', 'rb') as f:
-    state_enc = cloudpickle.load(f)
-with lzma.open('investment_label_model.pkl', 'rb') as f:
-    investment_model = cloudpickle.load(f)
-with lzma.open('ROI_predictor.pkl.xz', 'rb') as f:
-    roi_model = cloudpickle.load(f)
+price_model = joblib.load('rf_price_prediction.pkl.xz')
+city_enc = joblib.load('city_encoder.pkl')
+state_enc = joblib.load('state_encoder.pkl')
+investment_model = joblib.load('investment_label_model.pkl')
+roi_model = joblib.load('ROI_predictor.pkl.xz')
 
 # creating an instance of fastapi
 app = FastAPI(title = 'Housemind valuation API', version="1.0.0", description = 'API for communicating with models that performs residential real estate valuation and investment insights.')
