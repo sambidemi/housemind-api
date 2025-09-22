@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: housemind-api
+    env: python
+    plan: free
+    region: oregon 
+    buildCommand: |
+      # Install Git LFS and fetch your model files
+      apt-get update && apt-get install -y git-lfs
+      git lfs install
+      git lfs pull
+      pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+     
