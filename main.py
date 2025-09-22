@@ -11,9 +11,9 @@ from fastapi.middleware.cors import CORSMiddleware #needed for managing the fron
 #loading the models and encoders into objects
 
 def download_from_drive (file_id, file_name):
-    if not os.path.exist(file_name):
+    if not os.path.exists(file_name):
         url = f'https://drive.google.com/uc?export=download&id={file_id}'
-        r = request.get(url, allow_redirects = True)
+        r = requests.get(url, allow_redirects = True)
         with open(file_name, 'wb') as f:
             f.write(r.content)
 
