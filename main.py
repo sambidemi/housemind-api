@@ -4,22 +4,10 @@ import pandas as pd
 import numpy as np
 import cloudpickle, lzma
 import joblib
-import os,requests
 from fastapi.middleware.cors import CORSMiddleware #needed for managing the frontends that can access the api
 
 
 #loading the models and encoders into objects
-
-def download_from_drive (file_id, file_name):
-    if not os.path.exists(file_name):
-        url = f'https://drive.google.com/uc?export=download&id={file_id}'
-        r = requests.get(url, allow_redirects = True)
-        with open(file_name, 'wb') as f:
-            f.write(r.content)
-
-download_from_drive('1xLQcHtgBQy8ezgnOquqFo3cwBAArYcoX','rf_price_prediction.pkl.xz')
-download_from_drive('1-92ArDvhz-sjUhBTU5s7ciggv9_0gfGp','ROI_predictor.pkl.xz')
-
 price_model = joblib.load('rf_price_prediction.pkl.xz')
 city_enc = joblib.load('city_encoder.pkl')
 state_enc = joblib.load('state_encoder.pkl')
